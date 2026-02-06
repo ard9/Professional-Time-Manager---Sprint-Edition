@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time & Task Manager - Sprint Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .current-sprint-banner {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .current-sprint-banner h2 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .current-sprint-banner p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .current-sprint-banner button {
+            padding: 12px 25px;
+            background: white;
+            color: #f5576c;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .current-sprint-banner button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .no-sprint-banner {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .no-sprint-banner h2 {
+            color: #e74c3c;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .no-sprint-banner p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 1.1em;
+            color: #e74c3c;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .active-tasks {
+            margin-top: 20px;
+        }
+
+        .task-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .task-item.break-task {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border: 2px solid #e74c3c;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .task-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .task-type-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .badge-productive {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-break {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .task-timer {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .task-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .task-buttons button {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .stat-card.productive {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stat-card.break {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .stat-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .break-row {
+            background: #ffe6e6 !important;
+        }
+
+        .export-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .paused {
+            opacity: 0.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state img {
+            width: 150px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .sprint-list-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sprint-list-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .sprint-list-item.completed {
+            border-left-color: #27ae60;
+        }
+
+        .sprint-list-item h4 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 1.2em;
+        }
+
+        .sprint-list-item p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .sprint-stats-inline {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+            font-size: 0.9em;
+        }
+
+        .sprint-stats-inline span {
+            background: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            font-size: 2em;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⏱️ Professional Time Manager - Sprint Edition</h1>
+            <p>Organize your work in sprints and boost your productivity</p>
+        </div>
+
+        <!-- Current Sprint Banner -->
+        <div id="currentSprintBanner"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Add Task Section -->
+            <div class="card">
+                <h2>➕ Add New Task</h2>
+                <div id="taskFormContent">
+                    <p style="text-align: center; color: #999; padding: 40px;">
+                        Please start a sprint first to add tasks
+                    </p>
+                </div>
+            </div>
+
+            <!-- Active Tasks Section -->
+            <div class="card">
+                <h2>🚀 Active Tasks</h2>
+                <div id="activeTasks"></div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="card">
+            <h2>📊 Statistics & Analysis</h2>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterStats('current')">Current Sprint</button>
+                <button class="filter-btn" onclick="filterStats('all')">All Time</button>
+                <button class="filter-btn" onclick="toggleSprintSelector()">📋 Select Sprint</button>
+            </div>
+
+            <div id="sprintSelectorSection" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; color: #667eea;">Select a Sprint:</h3>
+                <select id="sprintSelector" onchange="filterBySelectedSprint()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                    <option value="">-- Choose a sprint --</option>
+                </select>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card productive">
+                    <h3>⚡ Productive Time</h3>
+                    <div class="stat-value" id="productiveTime">00:00:00</div>
+                    <div class="stat-label">Productive Work</div>
+                </div>
+                
+                <div class="stat-card break">
+                    <h3>☕ Break Time</h3>
+                    <div class="stat-value" id="breakTime">00:00:00</div>
+                    <div class="stat-label">Non-productive</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>⏱️ Total Time</h3>
+                    <div class="stat-value" id="totalTime">00:00:00</div>
+                    <div class="stat-label">Overall Time</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>📈 Productivity</h3>
+                    <div class="stat-value" id="productivity">0%</div>
+                    <div class="stat-label">Productive Ratio</div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <h3 style="margin-bottom: 10px;">Productivity Chart:</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="productivityBar" style="width: 0%">0%</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="timeChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="export-buttons">
+                <button class="btn btn-success" onclick="exportData()">💾 Save Data</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="card">
+            <h2>📜 Task History</h2>
+            <div style="overflow-x: auto;">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Sprint</th>
+                            <th>Type</th>
+                            <th>Duration</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sprint History -->
+        <div class="card">
+            <h2>🏃 Sprint History</h2>
+            <div id="sprintHistory"></div>
+        </div>
+    </div>
+
+    <!-- New Sprint Modal -->
+    <div id="newSprintModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNewSprintModal()">&times;</span>
+            <div class="modal-header">
+                <h2>🚀 Start New Sprint</h2>
+            </div>
+            <div class="input-group">
+                <label>Sprint Name:</label>
+                <input type="text" id="newSprintName" placeholder="e.g., Week 1, Project Phase 1, January Sprint">
+            </div>
+            <div class="input-group">
+                <label>Description (optional):</label>
+                <input type="text" id="newSprintDescription" placeholder="Brief description of this sprint">
+            </div>
+            <button class="btn btn-primary" onclick="createNewSprint()">Start Sprint</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+        let sprints = JSON.parse(localStorage.getItem('sprints')) || [];
+        let currentSprint = JSON.parse(localStorage.getItem('currentSprint')) || null;
+        let currentFilter = 'current';
+        let selectedSprintId = null;
+
+        // Sprint Management
+        function showNewSprintModal() {
+            document.getElementById('newSprintModal').style.display = 'block';
+            document.getElementById('newSprintName').value = '';
+            document.getElementById('newSprintDescription').value = '';
+        }
+
+        function closeNewSprintModal() {
+            document.getElementById('newSprintModal').style.display = 'none';
+        }
+
+        function createNewSprint() {
+            const name = document.getElementById('newSprintName').value.trim();
+            const description = document.getElementById('newSprintDescription').value.trim();
+
+            if (!name) {
+                alert('Please enter a sprint name!');
+                return;
+            }
+
+            // Close current sprint if exists
+            if (currentSprint) {
+                currentSprint.endTime = new Date();
+                currentSprint.isActive = false;
+                sprints.push(currentSprint);
+            }
+
+            // Create new sprint
+            currentSprint = {
+                id: Date.now(),
+                name: name,
+                description: description,
+                startTime: new Date(),
+                endTime: null,
+                isActive: true
+            };
+
+            saveSprints();
+            closeNewSprintModal();
+            renderAll();
+        }
+
+        function endCurrentSprint() {
+            if (!currentSprint) return;
+
+            if (tasks.length > 0) {
+                alert('Please complete or delete all active tasks before ending the sprint!');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to end "${currentSprint.name}"?`)) {
+                currentSprint.endTime = new Date();
+                currentSprint.isActive = false;
+                sprints.push(currentSprint);
+                currentSprint = null;
+                saveSprints();
+                renderAll();
+            }
+        }
+
+        function renderCurrentSprintBanner() {
+            const banner = document.getElementById('currentSprintBanner');
+            
+            if (currentSprint) {
+                const startDate = new Date(currentSprint.startTime);
+                const startDateStr = `${startDate.getFullYear()}/${String(startDate.getMonth() + 1).padStart(2, '0')}/${String(startDate.getDate()).padStart(2, '0')} - ${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
+                
+                banner.innerHTML = `
+                    <div class="current-sprint-banner">
+                        <div>
+                            <h2>🏃 ${currentSprint.name}</h2>
+                            <p>${currentSprint.description || 'Active Sprint'} • Started: ${startDateStr}</p>
+                        </div>
+                        <button onclick="endCurrentSprint()">End Sprint</button>
+                    </div>
+                `;
+                renderTaskForm();
+            } else {
+                banner.innerHTML = `
+                    <div class="no-sprint-banner">
+                        <h2>📋 No Active Sprint</h2>
+                        <p>Start a new sprint to begin tracking your tasks</p>
+                        <button class="btn btn-primary" onclick="showNewSprintModal()" style="max-width: 300px; margin: 0 auto;">🚀 Start New Sprint</button>
+                    </div>
+                `;
+                document.getElementById('taskFormContent').innerHTML = `
+                    <p style="text-align: center; color: #999; padding: 40px;">
+                        Please start a sprint first to add tasks
+                    </p>
+                `;
+            }
+        }
+
+        function renderTaskForm() {
+            if (!currentSprint) return;
+
+            document.getElementById('taskFormContent').innerHTML = `
+                <div class="input-group">
+                    <label>Task Name:</label>
+                    <input type="text" id="taskName" placeholder="Example: Work on web project">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="isBreak">
+                    <label for="isBreak">⏸️ This is a break time</label>
+                </div>
+
+                <button class="btn btn-primary" onclick="addTask()">Start Task</button>
+            `;
+        }
+
+        // Add New Task
+        function addTask() {
+            if (!currentSprint) {
+                alert('Please start a sprint first!');
+                return;
+            }
+
+            const taskName = document.getElementById('taskName').value.trim();
+            const isBreak = document.getElementById('isBreak').checked;
+
+            if (!taskName) {
+                alert('Please enter a task name!');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                name: taskName,
+                isBreak: isBreak,
+                sprintId: currentSprint.id,
+                sprintName: currentSprint.name,
+                startTime: new Date(),
+                elapsedSeconds: 0,
+                isRunning: true,
+                isPaused: false,
+                pauseStartTime: null
+            };
+
+            tasks.push(task);
+            saveTasks();
+            
+            document.getElementById('taskName').value = '';
+            document.getElementById('isBreak').checked = false;
+            
+            renderActiveTasks();
+            startTimer(task.id);
+        }
+
+        // Timer Management
+        let timers = {};
+
+        function startTimer(taskId) {
+            if (timers[taskId]) return;
+
+            timers[taskId] = setInterval(() => {
+                const task = tasks.find(t => t.id === taskId);
+                if (task && task.isRunning && !task.isPaused) {
+                    task.elapsedSeconds++;
+                    saveTasks();
+                    updateTaskDisplay(taskId);
+                }
+            }, 1000);
+        }
+
+        function pauseTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.isPaused = !task.isPaused;
+                if (task.isPaused) {
+                    task.pauseStartTime = new Date();
+                }
+                saveTasks();
+                renderActiveTasks();
+            }
+        }
+
+        function stopTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.isRunning = false;
+                task.endTime = new Date();
+                
+                // Move to completed
+                completedTasks.push({
+                    ...task,
+                    duration: task.elapsedSeconds
+                });
+                
+                // Remove from active
+                tasks = tasks.filter(t => t.id !== taskId);
+                
+                clearInterval(timers[taskId]);
+                delete timers[taskId];
+                
+                saveTasks();
+                renderActiveTasks();
+                renderHistory();
+                updateStatistics();
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                clearInterval(timers[taskId]);
+                delete timers[taskId];
+                saveTasks();
+                renderActiveTasks();
+            }
+        }
+
+        // Render Active Tasks
+        function renderActiveTasks() {
+            const container = document.getElementById('activeTasks');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p style="font-size: 1.2em;">No active tasks</p>
+                        <p>Add a new task to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => `
+                <div class="task-item ${task.isBreak ? 'break-task' : ''} ${task.isPaused ? 'paused' : ''}">
+                    <div class="task-header">
+                        <div class="task-name">${task.name}</div>
+                        <span class="task-type-badge ${task.isBreak ? 'badge-break' : 'badge-productive'}">
+                            ${task.isBreak ? '⏸️ Break' : '⚡ Productive'}
+                        </span>
+                    </div>
+                    <div class="task-timer" id="timer-${task.id}">
+                        ${formatTime(task.elapsedSeconds)}
+                    </div>
+                    <div style="text-align: center; color: #666; margin-bottom: 10px;">
+                        Started: ${formatDateTime(task.startTime)}
+                    </div>
+                    <div class="task-buttons">
+                        <button onclick="pauseTask(${task.id})" style="background: #f39c12; color: white;">
+                            ${task.isPaused ? '▶️ Resume' : '⏸️ Pause'}
+                        </button>
+                        <button onclick="stopTask(${task.id})" style="background: #27ae60; color: white;">
+                            ✅ Complete
+                        </button>
+                        <button onclick="deleteTask(${task.id})" style="background: #e74c3c; color: white;">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTaskDisplay(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            const timerElement = document.getElementById(`timer-${taskId}`);
+            if (timerElement && task) {
+                timerElement.textContent = formatTime(task.elapsedSeconds);
+            }
+        }
+
+        // Render History
+        function renderHistory() {
+            const tbody = document.getElementById('historyBody');
+            let filteredTasks = getFilteredTasks();
+
+            if (filteredTasks.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                            No completed tasks
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredTasks.reverse().map((task, index) => `
+                <tr class="${task.isBreak ? 'break-row' : ''}">
+                    <td><strong>${task.name}</strong></td>
+                    <td><span style="color: #667eea; font-weight: bold;">${task.sprintName}</span></td>
+                    <td>
+                        <span class="task-type-badge ${task.isBreak ? 'badge-break' : 'badge-productive'}">
+                            ${task.isBreak ? '⏸️ Break' : '⚡ Productive'}
+                        </span>
+                    </td>
+                    <td><strong>${formatTime(task.duration)}</strong></td>
+                    <td>${formatDateTime(task.startTime)}</td>
+                    <td>${formatDateTime(task.endTime)}</td>
+                    <td>
+                        <button onclick="deleteCompletedTask(${index})" style="background: #e74c3c; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">
+                            🗑️
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteCompletedTask(index) {
+            if (confirm('Are you sure?')) {
+                completedTasks.splice(completedTasks.length - 1 - index, 1);
+                localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+                renderHistory();
+                updateStatistics();
+            }
+        }
+
+        // Sprint History
+        function renderSprintHistory() {
+            const container = document.getElementById('sprintHistory');
+            const allSprints = [...sprints];
+            
+            if (currentSprint) {
+                allSprints.unshift(currentSprint);
+            }
+
+            if (allSprints.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p style="font-size: 1.2em;">No sprint history</p>
+                        <p>Complete your first sprint to see statistics here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = allSprints.map(sprint => {
+                const sprintTasks = completedTasks.filter(t => t.sprintId === sprint.id);
+                const productiveSeconds = sprintTasks.filter(t => !t.isBreak).reduce((sum, t) => sum + t.duration, 0);
+                const breakSeconds = sprintTasks.filter(t => t.isBreak).reduce((sum, t) => sum + t.duration, 0);
+                const totalSeconds = productiveSeconds + breakSeconds;
+                const productivity = totalSeconds > 0 ? Math.round((productiveSeconds / totalSeconds) * 100) : 0;
+                
+                const startDate = formatDateTime(sprint.startTime);
+                const endDate = sprint.endTime ? formatDateTime(sprint.endTime) : 'Ongoing';
+
+                return `
+                    <div class="sprint-list-item ${sprint.isActive ? '' : 'completed'}">
+                        <h4>🏃 ${sprint.name} ${sprint.isActive ? '(Active)' : ''}</h4>
+                        <p>${sprint.description || 'No description'}</p>
+                        <p style="color: #666; margin-top: 5px; font-size: 0.9em;">
+                            📅 ${startDate} → ${endDate}
+                        </p>
+                        <div class="sprint-stats-inline">
+                            <span>✅ ${sprintTasks.length} tasks</span>
+                            <span>📈 ${productivity}% productive</span>
+                            <span>⚡ ${formatTime(productiveSeconds)}</span>
+                            <span>☕ ${formatTime(breakSeconds)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Statistics
+        function updateStatistics() {
+            const filteredTasks = getFilteredTasks();
+            
+            let productiveSeconds = 0;
+            let breakSeconds = 0;
+
+            filteredTasks.forEach(task => {
+                if (task.isBreak) {
+                    breakSeconds += task.duration;
+                } else {
+                    productiveSeconds += task.duration;
+                }
+            });
+
+            const totalSeconds = productiveSeconds + breakSeconds;
+            const productivityPercent = totalSeconds > 0 ? Math.round((productiveSeconds / totalSeconds) * 100) : 0;
+
+            document.getElementById('productiveTime').textContent = formatTime(productiveSeconds);
+            document.getElementById('breakTime').textContent = formatTime(breakSeconds);
+            document.getElementById('totalTime').textContent = formatTime(totalSeconds);
+            document.getElementById('productivity').textContent = productivityPercent + '%';
+            
+            const progressBar = document.getElementById('productivityBar');
+            progressBar.style.width = productivityPercent + '%';
+            progressBar.textContent = productivityPercent + '%';
+
+            drawChart(productiveSeconds, breakSeconds);
+        }
+
+        // Chart Drawing
+        function drawChart(productiveSeconds, breakSeconds) {
+            const canvas = document.getElementById('timeChart');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const total = productiveSeconds + breakSeconds;
+            if (total === 0) {
+                ctx.fillStyle = '#999';
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No data to display yet', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            const barWidth = canvas.width / 2 - 60;
+            const maxHeight = 150;
+            const productiveHeight = (productiveSeconds / total) * maxHeight;
+            const breakHeight = (breakSeconds / total) * maxHeight;
+
+            // Productive bar
+            const gradient1 = ctx.createLinearGradient(0, 0, 0, maxHeight);
+            gradient1.addColorStop(0, '#38ef7d');
+            gradient1.addColorStop(1, '#11998e');
+            ctx.fillStyle = gradient1;
+            ctx.fillRect(50, canvas.height - productiveHeight - 20, barWidth, productiveHeight);
+
+            // Break bar
+            const gradient2 = ctx.createLinearGradient(0, 0, 0, maxHeight);
+            gradient2.addColorStop(0, '#fee140');
+            gradient2.addColorStop(1, '#fa709a');
+            ctx.fillStyle = gradient2;
+            ctx.fillRect(canvas.width / 2 + 10, canvas.height - breakHeight - 20, barWidth, breakHeight);
+
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Productive', 50 + barWidth / 2, canvas.height - 5);
+            ctx.fillText('Break', canvas.width / 2 + 10 + barWidth / 2, canvas.height - 5);
+
+            // Values
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Arial';
+            if (productiveHeight > 30) {
+                ctx.fillText(formatTime(productiveSeconds), 50 + barWidth / 2, canvas.height - productiveHeight);
+            }
+            if (breakHeight > 30) {
+                ctx.fillText(formatTime(breakSeconds), canvas.width / 2 + 10 + barWidth / 2, canvas.height - breakHeight);
+            }
+        }
+
+        // Filter Functions
+        function toggleSprintSelector() {
+            const section = document.getElementById('sprintSelectorSection');
+            const isVisible = section.style.display !== 'none';
+            
+            if (isVisible) {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
+                populateSprintSelector();
+            }
+        }
+
+        function populateSprintSelector() {
+            const selector = document.getElementById('sprintSelector');
+            const allSprints = [...sprints];
+            
+            if (currentSprint) {
+                allSprints.unshift(currentSprint);
+            }
+
+            selector.innerHTML = '<option value="">-- Choose a sprint --</option>' +
+                allSprints.map(sprint => 
+                    `<option value="${sprint.id}">${sprint.name} ${sprint.isActive ? '(Active)' : ''}</option>`
+                ).join('');
+        }
+
+        function filterBySelectedSprint() {
+            const selector = document.getElementById('sprintSelector');
+            selectedSprintId = selector.value ? parseInt(selector.value) : null;
+            
+            if (selectedSprintId) {
+                currentFilter = 'sprint';
+                
+                // Update active button
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('.filter-btn')[2].classList.add('active');
+                
+                renderHistory();
+                updateStatistics();
+            }
+        }
+
+        function filterStats(filter) {
+            currentFilter = filter;
+            
+            // Hide sprint selector section when switching to preset filters
+            if (filter !== 'sprint') {
+                document.getElementById('sprintSelectorSection').style.display = 'none';
+            }
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderHistory();
+            updateStatistics();
+        }
+
+        function getFilteredTasks() {
+            return completedTasks.filter(task => {
+                switch(currentFilter) {
+                    case 'current':
+                        return currentSprint && task.sprintId === currentSprint.id;
+                    case 'sprint':
+                        return selectedSprintId && task.sprintId === selectedSprintId;
+                    case 'all':
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        // Utility Functions
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function formatDateTime(date) {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${year}/${month}/${day} - ${hours}:${minutes}`;
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+        }
+
+        function saveSprints() {
+            localStorage.setItem('sprints', JSON.stringify(sprints));
+            localStorage.setItem('currentSprint', JSON.stringify(currentSprint));
+        }
+
+        function exportData() {
+            const data = {
+                activeTasks: tasks,
+                completedTasks: completedTasks,
+                sprints: sprints,
+                currentSprint: currentSprint,
+                exportDate: new Date()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `time-tracker-backup-${Date.now()}.json`;
+            a.click();
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete all data?\nThis action cannot be undone!')) {
+                if (confirm('Really sure?')) {
+                    localStorage.clear();
+                    tasks = [];
+                    completedTasks = [];
+                    sprints = [];
+                    currentSprint = null;
+                    Object.keys(timers).forEach(id => clearInterval(timers[id]));
+                    timers = {};
+                    renderAll();
+                    alert('All data has been cleared!');
+                }
+            }
+        }
+
+        function renderAll() {
+            renderCurrentSprintBanner();
+            renderActiveTasks();
+            renderHistory();
+            updateStatistics();
+            renderSprintHistory();
+        }
+
+        // Initialize
+        function init() {
+            // Restart active timers
+            tasks.forEach(task => {
+                if (task.isRunning) {
+                    startTimer(task.id);
+                }
+            });
+            
+            renderAll();
+        }
+
+        // Run on load
+        init();
+    </script>
+</body>
+</html>
