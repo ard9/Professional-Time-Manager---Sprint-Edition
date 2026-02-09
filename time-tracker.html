@@ -803,10 +803,10 @@
                 sprintId: currentSprint.id,
                 sprintName: currentSprint.name,
                 startTime: new Date(),
-                elapsedSeconds: 0,
                 isRunning: true,
                 isPaused: false,
-                pauseStartTime: null
+                pausedDuration: 0, // زمان pause شده
+                lastPauseStart: null // زمان شروع آخرین pause
             };
 
             tasks.push(task);
@@ -822,14 +822,27 @@
         // Timer Management
         let timers = {};
 
+        function getCurrentDuration(task) {
+            if (!task.startTime) return 0;
+            
+            const now = new Date();
+            const totalElapsed = Math.floor((now - new Date(task.startTime)) / 1000);
+            
+            // اگر الان pause است، زمان pause فعلی رو هم اضافه کن
+            let currentPauseDuration = task.pausedDuration || 0;
+            if (task.isPaused && task.lastPauseStart) {
+                currentPauseDuration += Math.floor((now - new Date(task.lastPauseStart)) / 1000);
+            }
+            
+            return Math.max(0, totalElapsed - currentPauseDuration);
+        }
+
         function startTimer(taskId) {
             if (timers[taskId]) return;
 
             timers[taskId] = setInterval(() => {
                 const task = tasks.find(t => t.id === taskId);
-                if (task && task.isRunning && !task.isPaused) {
-                    task.elapsedSeconds++;
-                    saveTasks();
+                if (task && task.isRunning) {
                     updateTaskDisplay(taskId);
                 }
             }, 1000);
@@ -837,39 +850,62 @@
 
         function pauseTask(taskId) {
             const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.isPaused = !task.isPaused;
-                if (task.isPaused) {
-                    task.pauseStartTime = new Date();
+            if (!task) return;
+            
+            const now = new Date();
+            
+            if (task.isPaused) {
+                // Resume کردن
+                if (task.lastPauseStart) {
+                    const pauseDuration = Math.floor((now - new Date(task.lastPauseStart)) / 1000);
+                    task.pausedDuration = (task.pausedDuration || 0) + pauseDuration;
+                    task.lastPauseStart = null;
                 }
-                saveTasks();
-                renderActiveTasks();
+                task.isPaused = false;
+            } else {
+                // Pause کردن
+                task.isPaused = true;
+                task.lastPauseStart = now;
             }
+            
+            saveTasks();
+            renderActiveTasks();
         }
 
         function stopTask(taskId) {
             const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.isRunning = false;
-                task.endTime = new Date();
-                
-                // Move to completed
-                completedTasks.push({
-                    ...task,
-                    duration: task.elapsedSeconds
-                });
-                
-                // Remove from active
-                tasks = tasks.filter(t => t.id !== taskId);
-                
-                clearInterval(timers[taskId]);
-                delete timers[taskId];
-                
-                saveTasks();
-                renderActiveTasks();
-                renderHistory();
-                updateStatistics();
+            if (!task) return;
+            
+            const now = new Date();
+            
+            // اگر pause بود، زمان pause آخر رو هم حساب کن
+            if (task.isPaused && task.lastPauseStart) {
+                const pauseDuration = Math.floor((now - new Date(task.lastPauseStart)) / 1000);
+                task.pausedDuration = (task.pausedDuration || 0) + pauseDuration;
             }
+            
+            // محاسبه duration نهایی
+            const finalDuration = getCurrentDuration(task);
+            
+            task.isRunning = false;
+            task.endTime = now;
+            
+            // Move to completed
+            completedTasks.push({
+                ...task,
+                duration: finalDuration
+            });
+            
+            // Remove from active
+            tasks = tasks.filter(t => t.id !== taskId);
+            
+            clearInterval(timers[taskId]);
+            delete timers[taskId];
+            
+            saveTasks();
+            renderActiveTasks();
+            renderHistory();
+            updateStatistics();
         }
 
         function deleteTask(taskId) {
@@ -905,10 +941,11 @@
                         </span>
                     </div>
                     <div class="task-timer" id="timer-${task.id}">
-                        ${formatTime(task.elapsedSeconds)}
+                        ${formatTime(getCurrentDuration(task))}
                     </div>
                     <div style="text-align: center; color: #666; margin-bottom: 10px;">
                         Started: ${formatDateTime(task.startTime)}
+                        ${task.isPaused ? '<br><span style="color: #e74c3c; font-weight: bold;">⏸️ PAUSED</span>' : ''}
                     </div>
                     <div class="task-buttons">
                         <button onclick="pauseTask(${task.id})" style="background: #f39c12; color: white;">
@@ -929,7 +966,7 @@
             const task = tasks.find(t => t.id === taskId);
             const timerElement = document.getElementById(`timer-${taskId}`);
             if (timerElement && task) {
-                timerElement.textContent = formatTime(task.elapsedSeconds);
+                timerElement.textContent = formatTime(getCurrentDuration(task));
             }
         }
 
