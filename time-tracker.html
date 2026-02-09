@@ -828,7 +828,7 @@
             const now = new Date();
             const totalElapsed = Math.floor((now - new Date(task.startTime)) / 1000);
             
-            // اگر الان pause است، زمان pause فعلی رو هم اضافه کن
+
             let currentPauseDuration = task.pausedDuration || 0;
             if (task.isPaused && task.lastPauseStart) {
                 currentPauseDuration += Math.floor((now - new Date(task.lastPauseStart)) / 1000);
@@ -855,7 +855,7 @@
             const now = new Date();
             
             if (task.isPaused) {
-                // Resume کردن
+
                 if (task.lastPauseStart) {
                     const pauseDuration = Math.floor((now - new Date(task.lastPauseStart)) / 1000);
                     task.pausedDuration = (task.pausedDuration || 0) + pauseDuration;
@@ -863,7 +863,7 @@
                 }
                 task.isPaused = false;
             } else {
-                // Pause کردن
+
                 task.isPaused = true;
                 task.lastPauseStart = now;
             }
@@ -878,13 +878,13 @@
             
             const now = new Date();
             
-            // اگر pause بود، زمان pause آخر رو هم حساب کن
+
             if (task.isPaused && task.lastPauseStart) {
                 const pauseDuration = Math.floor((now - new Date(task.lastPauseStart)) / 1000);
                 task.pausedDuration = (task.pausedDuration || 0) + pauseDuration;
             }
             
-            // محاسبه duration نهایی
+
             const finalDuration = getCurrentDuration(task);
             
             task.isRunning = false;
