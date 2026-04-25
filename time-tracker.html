@@ -595,8 +595,150 @@
         input[type="file"] {
             display: none;
         }
+
+        /* Sprint delete button */
+        .sprint-list-item {
+            position: relative;
+        }
+        .sprint-delete-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .sprint-list-item:hover .sprint-delete-btn {
+            opacity: 1;
+        }
+
+        /* Task note modal */
+        #noteModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(3px);
+            animation: fadeInBg 0.2s ease;
+        }
+        @keyframes fadeInBg { from { opacity: 0; } to { opacity: 1; } }
+
+        #noteModalContent {
+            background: white;
+            margin: 6% auto;
+            padding: 30px;
+            border-radius: 18px;
+            width: 90%;
+            max-width: 520px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.25s ease;
+            position: relative;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        #noteModalContent .modal-task-title {
+            font-size: 1.25em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+            padding-right: 30px;
+        }
+        #noteModalContent .modal-task-meta {
+            font-size: 0.88em;
+            color: #999;
+            margin-bottom: 18px;
+        }
+        #noteModalContent textarea {
+            width: 100%;
+            min-height: 140px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.97em;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s;
+            line-height: 1.6;
+        }
+        #noteModalContent textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+        }
+        .note-modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            justify-content: flex-end;
+        }
+        .note-modal-actions button {
+            padding: 9px 22px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .note-btn-cancel {
+            background: #f0f0f0;
+            color: #555;
+        }
+        .note-btn-cancel:hover { background: #e0e0e0; }
+        .note-btn-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .note-btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+
+        /* Note indicator on task card */
+        .task-note-indicator {
+            display: inline-block;
+            font-size: 0.78em;
+            background: #f0f4ff;
+            color: #667eea;
+            border: 1px solid #c5d0f5;
+            border-radius: 12px;
+            padding: 2px 9px;
+            margin-left: 8px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+        .task-item {
+            cursor: pointer;
+        }
+        .task-item:hover {
+            box-shadow: 0 8px 25px rgba(102,126,234,0.18);
+            transform: translateY(-1px);
+            transition: all 0.2s;
+        }
+        .task-buttons button {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Note in history table */
+        .history-note {
+            font-size: 0.82em;
+            color: #888;
+            margin-top: 3px;
+            font-style: italic;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Header -->
@@ -794,6 +936,20 @@
         </div>
     </div>
 
+    <!-- Note Modal -->
+    <div id="noteModal" onclick="closeNoteModalOnBg(event)">
+        <div id="noteModalContent">
+            <span class="close" onclick="closeNoteModal()" style="position:absolute;top:16px;right:20px;">&times;</span>
+            <div class="modal-task-title" id="noteModalTaskName"></div>
+            <div class="modal-task-meta" id="noteModalTaskMeta"></div>
+            <textarea id="noteModalTextarea" placeholder="Write your notes, links, or comments here..."></textarea>
+            <div class="note-modal-actions">
+                <button class="note-btn-cancel" onclick="closeNoteModal()">Cancel</button>
+                <button class="note-btn-save" onclick="saveNoteFromModal()">💾 Save Note</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data Storage
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -904,6 +1060,11 @@
                     <label>Task Name:</label>
                     <input type="text" id="taskName" placeholder="Example: Work on web project">
                 </div>
+
+                <div class="input-group">
+                    <label>Description / Notes (optional):</label>
+                    <textarea id="taskNote" placeholder="Add details, links, or context..." style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:15px;resize:vertical;min-height:60px;font-family:inherit;"></textarea>
+                </div>
                 
                 <div class="checkbox-group">
                     <input type="checkbox" id="isBreak">
@@ -923,6 +1084,7 @@
 
             const taskName = document.getElementById('taskName').value.trim();
             const isBreak = document.getElementById('isBreak').checked;
+            const taskNote = (document.getElementById('taskNote') || {}).value?.trim() || '';
 
             if (!taskName) {
                 alert('Please enter a task name!');
@@ -932,6 +1094,7 @@
             const task = {
                 id: Date.now(),
                 name: taskName,
+                note: taskNote,
                 isBreak: isBreak,
                 sprintId: currentSprint.id,
                 sprintName: currentSprint.name,
@@ -1059,9 +1222,12 @@
             }
 
             container.innerHTML = tasks.map(task => `
-                <div class="task-item ${task.isBreak ? 'break-task' : ''} ${task.isPaused ? 'paused' : ''}">
+                <div class="task-item ${task.isBreak ? 'break-task' : ''} ${task.isPaused ? 'paused' : ''}" onclick="openNoteModal(${task.id}, event)">
                     <div class="task-header">
-                        <div class="task-name">${task.name}</div>
+                        <div class="task-name">
+                            ${task.name}
+                            ${task.note ? '<span class="task-note-indicator">📝 Note</span>' : ''}
+                        </div>
                         <span class="task-type-badge ${task.isBreak ? 'badge-break' : 'badge-productive'}">
                             ${task.isBreak ? '⏸️ Break' : '⚡ Productive'}
                         </span>
@@ -1084,9 +1250,91 @@
                             🗑️ Delete
                         </button>
                     </div>
+                    <div style="text-align:center; margin-top:10px; font-size:0.82em; color:#aaa;">
+                        🖱️ Click card to add / view note
+                    </div>
                 </div>
             `).join('');
         }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        let _noteModalTaskId = null;
+        let _noteModalCompletedIndex = null;
+
+        function openCompletedNoteModal(realIndex, event) {
+            if (event && event.target.tagName === 'BUTTON') return;
+            const task = completedTasks[realIndex];
+            if (!task) return;
+
+            _noteModalCompletedIndex = realIndex;
+            _noteModalTaskId = null;
+            document.getElementById('noteModalTaskName').textContent = '📝 ' + task.name;
+            document.getElementById('noteModalTaskMeta').textContent =
+                (task.isBreak ? '⏸️ Break' : '⚡ Productive') +
+                ' · ' + formatDateTime(task.startTime) + ' → ' + formatDateTime(task.endTime) +
+                ' · ⏱ ' + formatTime(task.duration);
+            document.getElementById('noteModalTextarea').value = task.note || '';
+            document.getElementById('noteModal').style.display = 'block';
+            setTimeout(() => document.getElementById('noteModalTextarea').focus(), 50);
+        }
+
+        function openNoteModal(taskId, event) {
+            if (event && event.target.tagName === 'BUTTON') return;
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            _noteModalTaskId = taskId;
+            _noteModalCompletedIndex = null;
+            document.getElementById('noteModalTaskName').textContent = '📝 ' + task.name;
+            document.getElementById('noteModalTaskMeta').textContent =
+                (task.isBreak ? '⏸️ Break' : '⚡ Productive') + ' · Started: ' + formatDateTime(task.startTime);
+            document.getElementById('noteModalTextarea').value = task.note || '';
+            document.getElementById('noteModal').style.display = 'block';
+            setTimeout(() => document.getElementById('noteModalTextarea').focus(), 50);
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').style.display = 'none';
+            _noteModalTaskId = null;
+            _noteModalCompletedIndex = null;
+        }
+
+        function closeNoteModalOnBg(event) {
+            if (event.target.id === 'noteModal') closeNoteModal();
+        }
+
+        function saveNoteFromModal() {
+            const noteText = document.getElementById('noteModalTextarea').value.trim();
+
+            if (_noteModalTaskId !== null) {
+                // Active task
+                const task = tasks.find(t => t.id === _noteModalTaskId);
+                if (task) {
+                    task.note = noteText;
+                    saveTasks();
+                    closeNoteModal();
+                    renderActiveTasks();
+                }
+            } else if (_noteModalCompletedIndex !== null) {
+                // Completed task
+                completedTasks[_noteModalCompletedIndex].note = noteText;
+                saveTasks();
+                closeNoteModal();
+                renderHistory();
+            }
+        }
+
+        // ESC key closes modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeNoteModal();
+        });
 
         function updateTaskDisplay(taskId) {
             const task = tasks.find(t => t.id === taskId);
@@ -1113,8 +1361,11 @@
             }
 
             tbody.innerHTML = filteredTasks.reverse().map((task, index) => `
-                <tr class="${task.isBreak ? 'break-row' : ''}">
-                    <td><strong>${task.name}</strong></td>
+                <tr class="${task.isBreak ? 'break-row' : ''}" style="cursor:pointer;" onclick="openCompletedNoteModal(${completedTasks.length - 1 - index}, event)" title="Click to view / edit note">
+                    <td>
+                        <strong>${task.name}</strong>
+                        ${task.note ? ' <span style="font-size:0.78em;background:#f0f4ff;color:#667eea;border:1px solid #c5d0f5;border-radius:10px;padding:1px 8px;font-weight:600;">📝</span>' : ''}
+                    </td>
                     <td><span style="color: #667eea; font-weight: bold;">${task.sprintName}</span></td>
                     <td>
                         <span class="task-type-badge ${task.isBreak ? 'badge-break' : 'badge-productive'}">
@@ -1184,9 +1435,40 @@
                             <span>⚡ ${formatTime(productiveSeconds)}</span>
                             <span>☕ ${formatTime(breakSeconds)}</span>
                         </div>
+                        ${!sprint.isActive ? `<button class="sprint-delete-btn" onclick="deleteSprint(${sprint.id}, event)">🗑️ Delete</button>` : ''}
                     </div>
                 `;
             }).join('');
+        }
+
+        function deleteSprint(sprintId, event) {
+            event.stopPropagation();
+            const sprint = sprints.find(s => s.id === sprintId);
+            if (!sprint) return;
+
+            const taskCount = completedTasks.filter(t => t.sprintId === sprintId).length;
+            const msg = taskCount > 0
+                ? `Are you sure you want to delete sprint "${sprint.name}"?\n\n⚠️ This will also delete ${taskCount} completed task(s) belonging to this sprint.`
+                : `Are you sure you want to delete sprint "${sprint.name}"?`;
+
+            if (!confirm(msg)) return;
+
+            // Remove sprint and its tasks
+            sprints = sprints.filter(s => s.id !== sprintId);
+            completedTasks = completedTasks.filter(t => t.sprintId !== sprintId);
+            saveTasks();
+            saveSprints();
+
+            // If the deleted sprint was selected in the filter, reset to 'all'
+            if (selectedSprintId === sprintId) {
+                selectedSprintId = null;
+                currentFilter = 'all';
+            }
+
+            // Always refresh the selector list so deleted sprint doesn't linger
+            populateSprintSelector();
+
+            renderAll();
         }
 
         // Statistics
@@ -1379,9 +1661,15 @@
 
         // Export/Import Functions
         function exportData() {
+            // Snapshot current duration for each active task so import can restore correctly
+            const activeTasksSnapshot = tasks.map(task => ({
+                ...task,
+                duration: getCurrentDuration(task)
+            }));
+
             const data = {
                 version: '1.0',
-                activeTasks: tasks,
+                activeTasks: activeTasksSnapshot,
                 completedTasks: completedTasks,
                 sprints: sprints,
                 currentSprint: currentSprint,
@@ -1447,11 +1735,22 @@
                     saveSprints();
 
                     // Restart timers for active tasks
+                    // Fix: After import, running tasks have old startTime from the exported file.
+                    // We reset startTime to "now minus already-recorded elapsed time" so the timer
+                    // continues correctly from where it left off, avoiding duration=0 on complete.
                     tasks.forEach(task => {
                         if (task.isRunning) {
+                            // Calculate how much productive time was recorded at export
+                            const recordedDuration = task.duration || 0;
+                            // Reset to a clean running state from now
+                            task.startTime = new Date(Date.now() - recordedDuration * 1000);
+                            task.pausedDuration = 0;
+                            task.lastPauseStart = null;
+                            task.isPaused = false;
                             startTimer(task.id);
                         }
                     });
+                    saveTasks();
 
                     // Re-render everything
                     renderAll();
@@ -1469,7 +1768,12 @@
         function clearAllData() {
             if (confirm('⚠️ Are you sure you want to delete all data?\n\nThis action cannot be undone!\n\nAll data will be permanently deleted!')) {
                 if (confirm('⚠️⚠️ Really sure?\n\nAre you absolutely certain?')) {
-                    localStorage.clear();
+                    // Fix: only remove specific keys instead of localStorage.clear()
+                    // which would wipe unrelated browser data from other apps on the same origin
+                    localStorage.removeItem('tasks');
+                    localStorage.removeItem('completedTasks');
+                    localStorage.removeItem('sprints');
+                    localStorage.removeItem('currentSprint');
                     tasks = [];
                     completedTasks = [];
                     sprints = [];
@@ -1503,5 +1807,79 @@
 
         init();
     </script>
+
+    <footer style="
+        margin-top: 40px;
+        padding: 32px 40px;
+        background: rgba(0,0,0,0.25);
+        border-top: 1px solid rgba(255,255,255,0.12);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: rgba(255,255,255,0.85);
+    ">
+        <div style="
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        ">
+            <!-- Left: avatar + name -->
+            <div style="display:flex; align-items:center; gap:14px;">
+                <div style="
+                    width: 46px; height: 46px;
+                    background: linear-gradient(135deg, #667eea, #f5576c);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 1.2em; font-weight: bold; color: white;
+                    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+                    flex-shrink: 0;
+                ">A</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 1em; letter-spacing: 0.3px;">Armin</div>
+                    <div style="font-size: 0.78em; opacity: 0.55; margin-top: 2px;">Designed &amp; Built with ❤️</div>
+                </div>
+            </div>
+
+            <!-- Center: social links -->
+            <div style="display: flex; gap: 10px;">
+                <a href="https://github.com/YOUR_USERNAME" target="_blank" title="GitHub" style="
+                    display: flex; align-items: center; gap: 7px;
+                    background: rgba(255,255,255,0.1);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    color: white; text-decoration: none;
+                    padding: 8px 18px; border-radius: 8px;
+                    font-size: 0.87em; font-weight: 600;
+                    transition: all 0.2s;
+                "
+                onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.transform='translateY(-2px)'"
+                onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.transform='translateY(0)'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .322.216.694.825.576C20.565 21.795 24 17.298 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                    GitHub
+                </a>
+                <a href="https://linkedin.com/in/YOUR_USERNAME" target="_blank" title="LinkedIn" style="
+                    display: flex; align-items: center; gap: 7px;
+                    background: rgba(255,255,255,0.1);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    color: white; text-decoration: none;
+                    padding: 8px 18px; border-radius: 8px;
+                    font-size: 0.87em; font-weight: 600;
+                    transition: all 0.2s;
+                "
+                onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.transform='translateY(-2px)'"
+                onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.transform='translateY(0)'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    LinkedIn
+                </a>
+            </div>
+
+            <!-- Right: copyright -->
+            <div style="font-size: 0.78em; opacity: 0.45; letter-spacing: 0.3px;">
+                © 2025 Armin · Time &amp; Task Manager
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>
