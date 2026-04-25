@@ -1,202 +1,229 @@
-# Professional-Time-Manager---Sprint-Edition
-A professional time and task management web app with sprint-based organization. Track productivity, manage tasks, and analyze work patterns. Pure HTML/CSS/JS - no dependencies, works offline.
-# ⏱️ Sprint Time Tracker
+# ⏱️ Professional Time Manager — Sprint Edition
 
-A professional time and task management application with sprint-based organization. Track your productivity, manage tasks, and analyze your work patterns across different sprints.
+A professional time and task management web app with sprint-based organization.  
+Track your productivity, manage tasks, add notes, and analyze work patterns — all in a single HTML file with **zero dependencies**.
 
-![Sprint Time Tracker](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)
+
+---
 
 ## 🚀 Features
 
-### Sprint Management
-- **Create Custom Sprints**: Organize your work into named sprints (e.g., "Week 1", "Project Phase A")
-- **Sprint History**: View complete history of all past sprints with detailed statistics
-- **Sprint Comparison**: Compare productivity across different sprints
-- **Flexible Duration**: Sprints can be as short or long as you need
+### 🏃 Sprint Management
+- **Create Custom Sprints** — Organize work into named sprints (e.g., "Week 1", "Project Phase A")
+- **Active Sprint Banner** — Always see your current sprint name, description, and start time at the top
+- **End Sprint** — Close a sprint and archive it to history
+- **Delete Sprint** — Remove any completed sprint and all its associated tasks
+- **Sprint History** — Full history of past sprints with statistics per sprint
+- **Sprint Comparison** — Compare productivity metrics across different sprints
 
-### Task Tracking
-- **Real-time Timers**: Track time spent on each task with live counters
-- **Productive vs Break Time**: Categorize tasks as productive work or breaks
-- **Pause/Resume**: Pause and resume tasks without losing progress
-- **Task History**: Complete history of all completed tasks
+### ✅ Task Tracking
+- **Real-time Timers** — Live counters on every active task
+- **Productive vs Break** — Categorize each task as productive work or a break
+- **Pause / Resume** — Pause a task without losing elapsed time
+- **Complete** — Mark a task done and move it to history with accurate duration
+- **Delete** — Remove a task without saving it
 
-### Analytics & Statistics
-- **Productivity Metrics**: Calculate productivity percentage (productive time / total time)
-- **Visual Charts**: Bar charts showing productive vs break time distribution
-- **Sprint Filtering**: View statistics for specific sprints or all-time data
-- **Real-time Updates**: Statistics update automatically as you work
+### 📝 Notes & Comments
+- **Add Note to Any Task** — Click any active task card to open a note modal
+- **View / Edit Note on Completed Tasks** — Click any row in the history table to open and edit its note
+- **Note Indicator** — A small 📝 badge appears on tasks that have notes (both on cards and in history)
+- **Notes Persist** — Notes are saved to localStorage and survive page refresh and export/import
 
-### Data Management
-- **Local Storage**: All data stored locally in your browser
-- **Export Data**: Download your data as JSON for backup
-- **Clear History**: Option to reset all data when needed
-- **Persistent State**: Tasks and sprints survive page refreshes
+### 📊 Statistics & Analytics
+- **Productive Time** — Total time spent on productive tasks
+- **Break Time** — Total time spent on breaks
+- **Total Time** — Combined productive + break time
+- **Productivity %** — Calculated as `(Productive Time / Total Time) × 100`
+- **Visual Progress Bar** — Instant visual of productivity ratio
+- **Bar Chart** — Canvas-rendered chart comparing productive vs break time
 
-## 📸 Screenshots
+### 🔍 Filtering
+- **Current Sprint** — View stats and history for the active sprint only
+- **All Time** — Cumulative statistics across every sprint
+- **Select Sprint** — Dropdown to filter by any specific past sprint
 
-### Active Sprint Dashboard
-Track your current sprint with live task timers and quick controls.
+### 💾 Data Management
+- **Local Storage** — All data stored in the browser, no server needed
+- **Export to JSON** — Download a full backup including active tasks, completed tasks, and sprints
+- **Import from JSON** — Restore a backup; active tasks resume their timers with correct elapsed time
+- **Clear Specific Sprint** — Delete one sprint without touching others
+- **Clear All Data** — Double-confirmation reset that only removes app data (not unrelated browser storage)
 
-### Sprint History
-Review past sprints with comprehensive statistics and productivity metrics.
-
-### Task Management
-Add, pause, complete, or delete tasks with an intuitive interface.
+---
 
 ## 🛠️ Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/sprint-time-tracker.git
-   ```
+No install required. Just open the file in a browser.
 
-2. **Open the file**
-   ```bash
-   cd sprint-time-tracker
-   open time-task-manager-with-sprints.html
-   ```
+```bash
+git clone https://github.com/YOUR_USERNAME/sprint-time-tracker.git
+cd sprint-time-tracker
+open time-tracker.html
+```
 
-3. **Start tracking!**
-   - Open the HTML file in any modern web browser
-   - No server or dependencies required
-   - Works completely offline
+Or simply download the HTML file and double-click it. Works 100% offline.
+
+---
 
 ## 💻 Usage
 
 ### Starting Your First Sprint
+1. Click **"Start New Sprint"**
+2. Enter a sprint name and optional description
+3. Click **"Start Sprint"**
 
-1. Click **"Start New Sprint"** button
-2. Enter a sprint name (e.g., "January Week 1")
-3. Optionally add a description
-4. Click **"Start Sprint"**
+### Adding a Task
+1. Enter the task name
+2. Optionally add a description/note in the text area
+3. Check **"This is a break time"** if it's non-productive
+4. Click **"Start Task"** — the timer starts immediately
 
-### Adding Tasks
+### Managing Active Tasks
+| Action | How |
+|--------|-----|
+| Pause timer | Click **⏸️ Pause** on the task card |
+| Resume timer | Click **▶️ Resume** |
+| Add / Edit note | Click anywhere on the card (not on a button) |
+| Complete task | Click **✅ Complete** |
+| Delete task | Click **🗑️ Delete** |
 
-1. Enter task name in the input field
-2. Check "This is a break time" if it's a non-productive activity
-3. Click **"Start Task"**
-4. The timer starts automatically
-
-### Managing Tasks
-
-- **Pause**: Click pause button to temporarily stop the timer
-- **Resume**: Click resume to continue tracking
-- **Complete**: Mark task as done and add to history
-- **Delete**: Remove task without saving to history
-
-### Viewing Statistics
-
-- **Current Sprint**: See stats for your active sprint
-- **All Time**: View cumulative statistics across all sprints
-- **Select Sprint**: Filter by specific past sprint
+### Viewing & Editing Notes on Completed Tasks
+- In the **Task History** table, click any row to open the note modal
+- Edit the note and click **💾 Save Note**
+- A 📝 badge appears in the table if the task has a note
 
 ### Ending a Sprint
-
 1. Complete or delete all active tasks
-2. Click **"End Sprint"** in the banner
-3. Sprint is saved to history
-4. Ready to start a new sprint
+2. Click **"End Sprint"** in the active sprint banner
+3. The sprint is archived to Sprint History
 
-## 🎨 Features in Detail
+### Deleting a Sprint
+1. Scroll to **Sprint History**
+2. Hover over any completed sprint
+3. Click the **🗑️ Delete** button that appears
+4. Confirm — the sprint and all its tasks are removed
 
-### Productivity Calculation
+### Export & Import
+- **Export**: Click **📤 Export Data** — a JSON file is downloaded
+- **Import**: Click **📥 Import Data** and select a JSON backup file
+  - Active tasks resume with their saved elapsed time
+  - All sprints, completed tasks, and notes are restored
 
-```
-Productivity % = (Productive Time / Total Time) × 100
-```
-
-- **Productive Time**: Sum of all non-break tasks
-- **Break Time**: Sum of all break tasks
-- **Total Time**: Productive + Break time
-
-### Data Storage
-
-All data is stored in browser's `localStorage`:
-
-- `tasks`: Currently active tasks
-- `completedTasks`: History of finished tasks
-- `sprints`: Completed sprint history
-- `currentSprint`: Active sprint information
-
-### Export Format
-
-Exported JSON includes:
-```json
-{
-  "activeTasks": [...],
-  "completedTasks": [...],
-  "sprints": [...],
-  "currentSprint": {...},
-  "exportDate": "2024-01-15T10:30:00.000Z"
-}
-```
-
-## 🌟 Use Cases
-
-- **Software Development**: Track coding sprints and tasks
-- **Study Sessions**: Organize study time with breaks
-- **Project Management**: Monitor time across project phases
-- **Freelancing**: Track billable vs non-billable hours
-- **Personal Productivity**: Analyze work patterns and habits
+---
 
 ## 🔧 Technical Details
 
-- **Pure HTML/CSS/JavaScript**: No frameworks or dependencies
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Canvas API**: Used for chart rendering
-- **LocalStorage API**: For data persistence
-- **ES6+**: Modern JavaScript features
+- **Pure HTML / CSS / JavaScript** — no frameworks, no npm, no build step
+- **Single file** — everything in one `.html` file, easy to share
+- **Canvas API** — used for the productivity bar chart
+- **localStorage API** — for all data persistence
+- **ES6+** — modern JavaScript (arrow functions, spread, template literals, etc.)
+- **Responsive layout** — CSS Grid, works on desktop and tablet
+
+### localStorage Keys
+
+| Key | Contents |
+|-----|----------|
+| `tasks` | Active (running) tasks array |
+| `completedTasks` | History of finished tasks with notes |
+| `sprints` | Completed sprint archive |
+| `currentSprint` | Active sprint object |
+
+### Export JSON Structure
+
+```json
+{
+  "version": "1.0",
+  "exportDate": "2025-04-25T10:30:00.000Z",
+  "activeTasks": [
+    {
+      "id": 1714038600000,
+      "name": "Fix login bug",
+      "note": "Related to issue #42",
+      "isBreak": false,
+      "sprintId": 1713900000000,
+      "startTime": "2025-04-25T08:00:00.000Z",
+      "isRunning": true,
+      "duration": 3600
+    }
+  ],
+  "completedTasks": [...],
+  "sprints": [...],
+  "currentSprint": {...}
+}
+```
+
+### Duration Calculation
+
+```
+finalDuration = totalElapsed - pausedDuration
+
+totalElapsed   = now - startTime  (in seconds)
+pausedDuration = sum of all pause intervals
+```
+
+On import, `startTime` is recalculated as `now - savedDuration` so the timer continues correctly without drift.
+
+---
 
 ## 📊 Browser Compatibility
 
-- ✅ Chrome 60+
-- ✅ Firefox 55+
-- ✅ Safari 11+
-- ✅ Edge 79+
-- ✅ Opera 47+
+| Browser | Supported |
+|---------|-----------|
+| Chrome 60+ | ✅ |
+| Firefox 55+ | ✅ |
+| Safari 11+ | ✅ |
+| Edge 79+ | ✅ |
+| Opera 47+ | ✅ |
 
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Designed for productivity enthusiasts
-- Built with simplicity and efficiency in mind
-- Inspired by agile sprint methodology
-
-## 📧 Contact
-
-For questions or suggestions, please open an issue on GitHub.
+---
 
 ## 🗺️ Roadmap
 
-Future enhancements planned:
-
-- [ ] Import data from JSON backup
-- [ ] Calendar view of sprints
-- [ ] Export to CSV/Excel
+- [x] Sprint creation and management
+- [x] Pause / resume tasks
+- [x] Export & import JSON backup
+- [x] Per-task notes with modal editor
+- [x] Notes on completed tasks (history table)
+- [x] Delete individual sprints
+- [x] Sprint selector in statistics filter
 - [ ] Dark mode theme
-- [ ] Custom color themes
-- [ ] Sprint goals and notes
-- [ ] Task categories/tags
-- [ ] Weekly/monthly reports
+- [ ] Export to CSV / Excel
+- [ ] Calendar view of sprints
+- [ ] Task categories / tags
+- [ ] Weekly & monthly reports
 - [ ] Pomodoro timer integration
 - [ ] Cloud sync option
 
 ---
 
-**Made with ❤️ for better productivity**
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👤 Author
+
+**Armin**  
+[![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white)](https://github.com/YOUR_USERNAME)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?logo=linkedin&logoColor=white)](https://linkedin.com/in/YOUR_USERNAME)
+
+---
+
+*Made with ❤️ for better productivity*
